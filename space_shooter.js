@@ -1,4 +1,22 @@
 /* 
+
+TO DO LIST
+---------
+*Work on velocity with the player movement.
+*All Enemy Functionality
+*All Collision Handling
+*Player Combat
+*Most Player Stats
+*Extra Credit
+
+Finished List
+----------------
+*Simple Player movement
+*Display Seconds
+
+
+
+
 ------------------------------
 ------- INPUT SECTION -------- 
 ------------------------------
@@ -38,7 +56,7 @@ class InputHandler {
 	 */
 	keydown(event) {
 		// ignore event handling if they are holding down the button
-		if (event.repeat)
+		if (event.repeat || event.isComposing || event.keyCode === 229)
 			return;
 	
 		// check if axis mapping exists
@@ -63,6 +81,10 @@ class InputHandler {
 	 */
 	keyup(event) {
 		// check if axis mapping exists
+
+		if (event.repeat || event.isComposing || event.keyCode === 229)
+			return;
+	
 		if (this.key_code_mappings.axis.hasOwnProperty(event.keyCode)) {
 			const mapping = this.key_code_mappings.axis[event.keyCode];
 			this.player.controller[mapping.state] -= mapping.mod;
@@ -132,7 +154,7 @@ class Body {
 	update(delta_time) {
 		// move body
 		this.position.x += delta_time * this.velocity.x;
-		this.position.y += delta_time * this.velocity.y;
+		this.position.y += delta_time * this.velocity.y;			
 	}
 
 	/**
@@ -233,13 +255,12 @@ class Player extends Body {
 			You can also log the current state of the player's controller with the following code
 		*/
 
-		this.position.x = this.position.x + 1;
-		if(this.input_handler.key_code_mappings.axis.key == "right"){
-			console.log("Move right 1");
-		}
+		//this.position.x = this.position.x + 1;
 		
+		this.position.x += this.controller.move_x;
+		this.position.y += this.controller.move_y;
 		
-		console.log(this.controller);
+		//console.log(this.controller);
 		 
 
 		// update position
@@ -418,6 +439,9 @@ function loop(curr_time) {
 		loop_count++;
 
 		game_state.innerHTML = `loop count ${loop_count}`;
+		seconds_alive.innerHTML = `seconds alive ${Math.floor(curr_time)}`;
+		totalEnemiesSpawned.innerHTML = `Enemies Spawned ${15}`;
+		totalEnemiesKilled.innerHTML = `Enemies Killed ${16}`;
 		player.update(delta_time);
 	}
 
