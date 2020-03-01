@@ -1,12 +1,16 @@
 body {
     background-image: url("space-invaders-logo2.png");
+    font-family: 'Space Mono';
+    text-align: center;
+    position: fixed;
+    zoom: 70%;
+    
 }
 
 #game_wrapper{
     background-color: whitesmoke;
     flex-direction: row;
     text-align: center;
-    font-family: 'Space Mono';
     display: flex;
     justify-content: space-evenly;
     align-items: center;
@@ -18,12 +22,8 @@ body {
     margin: 0 auto;
 }
 
-#game_state{
-    margin-left: 3rem;
-}
-
 #statsSection{
-    margin-right: 3rem;
+    margin: 2rem;
 }
 
 .statsScreen{
@@ -31,4 +31,22 @@ body {
     border-radius: 1.5rem;
     color: black !important;
     padding: 1rem;
+}
+
+#statsSection span{
+    background-color: black;
+    border-radius: .5rem;
+    border: 2px solid blanchedalmond;
+    display: block;
+    margin: .25rem;
+    padding: .25rem;
+}
+
+#parentWrapper{
+    display: flex;
+    justify-content: center;
+    background-color: crimson;
+    font-size: 5rem;
+    border: 3px solid blanchedalmond;
+    margin: 2rem;
 }

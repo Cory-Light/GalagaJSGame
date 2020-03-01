@@ -718,11 +718,9 @@ function loop(curr_time) {
 		if(firstGame){
 			HighScore = 0;
 		}
-		game_state.innerHTML = (
-			`Loop Count ${loop_count} <br>` +
-			`Score ${score} <br>` +
-			`The Score to beat is ${HighScore}`
-		);
+		loopCount.innerHTML = `Loop Count ${loop_count}`;
+		scoreSpan.innerHTML = `Score ${score}`;
+		highScoreSpan.innerHTML = `The score to beat is ${HighScore}`;
 		seconds_alive.innerHTML = `You've survived for ${timeAlive.toFixed(2)} seconds`;
 		totalEnemiesSpawned.innerHTML = `There have been ${enemiesSpawned} scum walking this earth`;
 		totalEnemiesKilled.innerHTML = `You've ended ${enemiesKilled} of their lives`;
