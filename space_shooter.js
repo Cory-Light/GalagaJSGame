@@ -45,14 +45,14 @@ class InputHandler {
 		if (this.key_code_mappings.axis.hasOwnProperty(event.keyCode)) {
 			const mapping = this.key_code_mappings.axis[event.keyCode];
 			this.player.controller[mapping.state] += mapping.mod;
-			console.log(`input_handler[axis:${mapping.state} state:${this.player.controller[mapping.state]}]`);
+			//console.log(`input_handler[axis:${mapping.state} state:${this.player.controller[mapping.state]}]`);
 		}
 
 		// check if button mapping exists
 		if (this.key_code_mappings.button.hasOwnProperty(event.keyCode)) {
 			const mapping = this.key_code_mappings.button[event.keyCode];
 			this.player.controller[mapping.state] = true;
-			console.log(`input_handler[button:${mapping.state} state:${this.player.controller[mapping.state]}]`);
+			//console.log(`input_handler[button:${mapping.state} state:${this.player.controller[mapping.state]}]`);
 		}
 	}
 
@@ -69,14 +69,14 @@ class InputHandler {
 		if (this.key_code_mappings.axis.hasOwnProperty(event.keyCode)) {
 			const mapping = this.key_code_mappings.axis[event.keyCode];
 			this.player.controller[mapping.state] -= mapping.mod;
-			console.log(`input_handler[axis:${mapping.state} state:${this.player.controller[mapping.state]}]`);
+			//console.log(`input_handler[axis:${mapping.state} state:${this.player.controller[mapping.state]}]`);
 		}
 
 		// check if button mapping exists
 		if (this.key_code_mappings.button.hasOwnProperty(event.keyCode)) {
 			const mapping = this.key_code_mappings.button[event.keyCode];
 			this.player.controller[mapping.state] = false;
-			console.log(`input_handler[button:${mapping.state} state:${this.player.controller[mapping.state]}]`);
+			//console.log(`input_handler[button:${mapping.state} state:${this.player.controller[mapping.state]}]`);
 		}
 	}
 }
@@ -304,6 +304,13 @@ class Player extends Body {
 			//die after health is 0 collisions
 			if(this.isDead()){
 				this.remove();
+				if(firstGame){
+					firstGame = false;
+				}
+				if(score > HighScore){
+					HighScore = score;
+				}
+				start();
 			}
 
 			//Combat
@@ -389,11 +396,77 @@ class Enemy extends Body {
 	}
 }
 
+class BossEnemy extends Body {
+	/**
+	 * Creates a new enemy with the default attributes.
+	 */
+	constructor(speed) {
+		super();
+
+		this.speed = speed;
+		// enemies spawn above canvos at a random x
+		this.position = {
+			x: Math.random()*config.canvas_size.width,
+			y: -50
+		};
+		this.health = 1000;
+	}
+
+	/**
+	 * Draws the enemy as a red triangle around the enemies position.
+	 *
+	 * @param {CanvasRenderingContext2D} graphics The current graphics context.
+	 */
+	draw(graphics) {
+		graphics.strokeStyle = '#9400D3';
+		graphics.beginPath();
+		graphics.moveTo(
+			this.position.x,
+			this.position.y + this.half_size.height
+		);
+		graphics.lineTo(
+			this.position.x + this.half_size.width,
+			this.position.y - this.half_size.height
+		);
+		graphics.lineTo(
+			this.position.x - this.half_size.width,
+			this.position.y - this.half_size.height
+		);
+		graphics.lineTo(
+			this.position.x,
+			this.position.y + this.half_size.height
+		);
+		graphics.stroke();
+
+		// draw velocity lines
+		super.draw(graphics);
+	}
+
+	/**
+	 * Updates the enemy based on its speed.
+	 *
+	 * @param {Number} delta_time Time in seconds since last update call.
+	 */
+	update(delta_time) {
+		this.position.y += this.speed;
+		if(this.position.y >= config.canvas_size.height){
+			super.remove()
+		}
+		// update position
+		super.update(delta_time);
+		// clip to screen
+		this.position.x = Math.min(Math.max(0, this.position.x), config.canvas_size.width);
+		this.position.y = Math.min(Math.max(0, this.position.y), config.canvas_size.height);
+	}
+}
+
 class Enemy_Spawner {
 	constructor(enemies, timeBetween){
 		this.enemies = enemies;
 		this.time_between = timeBetween;
 		this.time_since_spawn = 0;
+		this.bossSpawn = false;
+		this.bossTimer = 0;
 	}
 
 	update(delta_time) {
@@ -402,8 +475,24 @@ class Enemy_Spawner {
 			this.time_since_spawn = 0;
 			let i;
 			for(i=0; i<this.enemies; i++){
-				new Enemy(2);
-				enemiesSpawned++;
+				if(this.bossSpawn){
+					new BossEnemy(2);
+					bossesSpawned++;
+					this.bossSpawn = false;
+					//console.log(this.bossSpawn);			
+				}
+				else{
+					new Enemy(2);
+					this.bossTimer++;
+					enemiesSpawned++;
+					//console.log(this.bossTimer);
+					if(this.bossTimer == 10)
+					{
+						this.bossSpawn = true;
+						this.bossTimer = 0;
+						//console.log(this.bossSpawn);
+					}
+				}
 			}
 		}
 	}
@@ -426,12 +515,27 @@ class Collision_Handler {
 								if(e2 instanceof Enemy){
 									e1.health -= 25;
 								}
+								if(e2 instanceof BossEnemy){
+									e1.health -= 100;
+								}
 							}
 							if(e1 instanceof Enemy){
 								if(e2 instanceof Player || e2 instanceof Projectile){
-									e1.remove();
-									if(e2 instanceof Projectile){
+									e1.health -= 100;
+									if(e1.health <= 0){
+										e1.remove();
 										enemiesKilled++;
+									}
+								}
+							}
+							if(e1 instanceof BossEnemy){
+								if(e2 instanceof Projectile){
+									e1.health -= 100;
+									//console.log("Boss hit once.");
+									if(e1.health <= 0){
+										e1.remove();
+										enemiesKilled++;
+										bossesKilled++;
 									}
 								}
 							}
@@ -544,9 +648,9 @@ function update(delta_time) {
 	}
 
 	// allow the player to restart when dead
-	if (player.isDead() && player.controller.action_1) {
-		start();
-	}
+	// if (player.isDead() && player.controller.action_1) {
+	// 	start();
+	// }
 }
 
 /**
@@ -569,15 +673,15 @@ function draw(graphics) {
 	});
 
 	// game over screen
-	if (player.isDead()) {
-		graphics.font = "30px Arial";
-		graphics.textAlign = "center";
-		graphics.fillText('Game Over', config.canvas_size.width / 2, config.canvas_size.height / 2);
+	// if (player.isDead()) {
+	// 	graphics.font = "30px Arial";
+	// 	graphics.textAlign = "center";
+	// 	graphics.fillText('Game Over', config.canvas_size.width / 2, config.canvas_size.height / 2);
 
-		graphics.font = "12px Arial";
-		graphics.textAlign = "center";
-		graphics.fillText('press space to restart', config.canvas_size.width / 2, 18 + config.canvas_size.height / 2);
-	}
+	// 	graphics.font = "12px Arial";
+	// 	graphics.textAlign = "center";
+	// 	graphics.fillText('press space to restart', config.canvas_size.width / 2, 18 + config.canvas_size.height / 2);
+	// }
 }
 
 /**
@@ -610,13 +714,22 @@ function loop(curr_time) {
 		loop_count++;
 
 		score = Math.floor(30*enemiesKilled+timeAlive);
+		
+		if(firstGame){
+			HighScore = 0;
+		}
 		game_state.innerHTML = (
-			`loop count ${loop_count} <br>` +
-			`enemies killed ${enemiesKilled} <br>` +
-			`time alive ${timeAlive.toFixed(2)} <br>` +
-			`enemies spawned ${enemiesSpawned} <br>` +
-			`score ${score}`
+			`Loop Count ${loop_count} <br>` +
+			`Score ${score} <br>` +
+			`The Score to beat is ${HighScore}`
 		);
+		seconds_alive.innerHTML = `You've survived for ${timeAlive.toFixed(2)} seconds`;
+		totalEnemiesSpawned.innerHTML = `There have been ${enemiesSpawned} scum walking this earth`;
+		totalEnemiesKilled.innerHTML = `You've ended ${enemiesKilled} of their lives`;
+		totalBossesSpawned.innerHTML = `There have been ${bossesSpawned} Big Bois walking this earth`;
+		totalBossesKilled.innerHTML = `You've splattered ${bossesKilled} of them`;
+		
+
 	}
 
 	window.requestAnimationFrame(loop);
@@ -627,12 +740,14 @@ function start() {
 	queued_entities_for_removal = [];
 	enemiesKilled = 0;
 	timeAlive = 0;
+	bossesSpawned = 0;
+	bossesKilled = 0;
 	enemiesSpawned = 0;
 	player = new Player();
 	enemy_spawner = new Enemy_Spawner(1, .55);
 	collision_handler = new Collision_Handler();
 }
-
+firstGame = true;
 // start the game
 start();
 

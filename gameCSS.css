@@ -1,0 +1,34 @@
+body {
+    background-image: url("space-invaders-logo2.png");
+}
+
+#game_wrapper{
+    background-color: whitesmoke;
+    flex-direction: row;
+    text-align: center;
+    font-family: 'Space Mono';
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+#game_canvas{
+    border: 1px solid black;
+    border-radius: 1.5rem;
+    margin: 0 auto;
+}
+
+#game_state{
+    margin-left: 3rem;
+}
+
+#statsSection{
+    margin-right: 3rem;
+}
+
+.statsScreen{
+    background-color: rgb(75, 75, 75);
+    border-radius: 1.5rem;
+    color: black !important;
+    padding: 1rem;
+}
