@@ -4,6 +4,7 @@ body {
     text-align: center;
     position: fixed;
     zoom: 70%;
+    color: black !important;
     
 }
 
@@ -29,7 +30,6 @@ body {
 .statsScreen{
     background-color: rgb(75, 75, 75);
     border-radius: 1.5rem;
-    color: black !important;
     padding: 1rem;
 }
 
@@ -40,6 +40,7 @@ body {
     display: block;
     margin: .25rem;
     padding: .25rem;
+    color: white;
 }
 
 #parentWrapper{
