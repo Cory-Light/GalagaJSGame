@@ -7,6 +7,7 @@
 /**
  * This class binds key listeners to the window and updates the controller in attached player body.
  *
+ * @author Professor Tony
  * @typedef InputHandler
  */
 class InputHandler {
@@ -91,6 +92,7 @@ class InputHandler {
  * Represents a basic physics body in the world. It has all of the necessary information to be
  * rendered, checked for collision, updated, and removed.
  *
+ * @author Professor Tony
  * @typedef Body
  */
 class Body {
@@ -164,6 +166,7 @@ class Body {
 /**
  * Represents an projectile body to be fired from player position.
  *
+ * @author Cameron
  * @typedef Projectile
  */
 class Projectile extends Body {
@@ -220,8 +223,9 @@ class Projectile extends Body {
 }
 
 /**
- * Represents an player body. Extends a Body by handling input binding and controller management.
+ * Represents a player body. Extends a Body by handling input binding and controller management.
  *
+ * @author Professor Tony, Cory and Cameron
  * @typedef Player
  */
 class Player extends Body {
@@ -333,6 +337,13 @@ class Player extends Body {
 	}
 }
 
+
+/**
+ * Represents an enemy body. Extends body by handling speed and position
+ *
+ * @author Cory and Cameron 
+ * @typedef Enemy
+ */
 class Enemy extends Body {
 	/**
 	 * Creates a new enemy with the default attributes.
@@ -396,9 +407,16 @@ class Enemy extends Body {
 	}
 }
 
+
+/**
+ * Represents a boss enemy body. Extends the enemy by adding health utilization
+ *
+ * @author Cory
+ * @typedef BossEnemy
+ */
 class BossEnemy extends Body {
 	/**
-	 * Creates a new enemy with the default attributes.
+	 * Creates a new boss enemy with the default attributes.
 	 */
 	constructor(speed) {
 		super();
@@ -413,7 +431,7 @@ class BossEnemy extends Body {
 	}
 
 	/**
-	 * Draws the enemy as a red triangle around the enemies position.
+	 * Draws the boss enemy as a purple triangle around the enemies position.
 	 *
 	 * @param {CanvasRenderingContext2D} graphics The current graphics context.
 	 */
@@ -443,7 +461,7 @@ class BossEnemy extends Body {
 	}
 
 	/**
-	 * Updates the enemy based on its speed.
+	 * Updates the boss enemy based on its speed.
 	 *
 	 * @param {Number} delta_time Time in seconds since last update call.
 	 */
@@ -460,7 +478,21 @@ class BossEnemy extends Body {
 	}
 }
 
+
+/**
+ * An object that spawns new enemy waves
+ *
+ * @author Cody and Cameron
+ * @typedef Enemy_Spawner
+ */
 class Enemy_Spawner {
+
+	/**
+	 * constructor - creates a new enemy_spawner
+	 *
+	 * @param  {Number} enemies     Number of enemies spawned per wave
+	 * @param  {Number} timeBetween Time between waves
+	 */
 	constructor(enemies, timeBetween){
 		this.enemies = enemies;
 		this.time_between = timeBetween;
@@ -469,6 +501,11 @@ class Enemy_Spawner {
 		this.bossTimer = 0;
 	}
 
+	/**
+	 * update - updates the enemy_spawner, spawning more enemies or waiting for next wave timer
+	 *
+	 * @param  {Number} delta_time tine in seconds since last update call
+	 */
 	update(delta_time) {
 		this.time_since_spawn+=delta_time;
 		if(this.time_since_spawn >= this.time_between){
@@ -479,7 +516,7 @@ class Enemy_Spawner {
 					new BossEnemy(2);
 					bossesSpawned++;
 					this.bossSpawn = false;
-					//console.log(this.bossSpawn);			
+					//console.log(this.bossSpawn);
 				}
 				else{
 					new Enemy(2);
@@ -498,11 +535,27 @@ class Enemy_Spawner {
 	}
 }
 
+
+/**
+ * Handles collisions between 2 bodies
+ *
+ * @author Cody and Cameron
+ * @typedef Collision_Handler
+ */
 class Collision_Handler {
+
+	/**
+	 * constructor - creates a new collision_handler
+	 *
+	 */
 	constructor(){
 		this.ent = entities;
 	}
 
+	/**
+	 * update - performs a check to see if 2 bodys have collided, updating the bodies if necessary
+	 *
+	 */
 	update(){
 		this.ent.forEach(e1 => {
 			this.ent.forEach(e2 => {
@@ -714,7 +767,7 @@ function loop(curr_time) {
 		loop_count++;
 
 		score = Math.floor(30*enemiesKilled+timeAlive);
-		
+
 		if(firstGame){
 			HighScore = 0;
 		}
@@ -726,13 +779,18 @@ function loop(curr_time) {
 		totalEnemiesKilled.innerHTML = `You've ended ${enemiesKilled} of their lives`;
 		totalBossesSpawned.innerHTML = `There have been ${bossesSpawned} Big Bois walking this earth`;
 		totalBossesKilled.innerHTML = `You've splattered ${bossesKilled} of them`;
-		
+
 
 	}
 
 	window.requestAnimationFrame(loop);
 }
 
+
+/**
+ * start - Starts the game, enters the loop after
+ *
+ */
 function start() {
 	entities = [];
 	queued_entities_for_removal = [];
