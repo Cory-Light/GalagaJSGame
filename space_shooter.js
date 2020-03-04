@@ -185,6 +185,11 @@ class Projectile extends Body {
 			x: x,
 			y: y
 		};
+
+		this.size = {
+			width: 10,
+			height: 20
+		};
 	}
 
 	/**
@@ -193,8 +198,9 @@ class Projectile extends Body {
 	 * @param {CanvasRenderingContext2D} graphics The current graphics context.
 	 */
 	draw(graphics) {
-		graphics.fillStyle = "#00FF00"
-		graphics.fillRect(this.position.x-this.half_size.width, this.position.y-this.half_size.height, this.size.width, this.size.height);
+		let img = new Image();
+		img.src = 'sprites/projectile.png';
+		graphics.drawImage(img, this.position.x-this.half_size.width, this.position.y-this.half_size.height, this.size.width, this.size.height);
 
 		// draw velocity lines
 		super.draw(graphics);
@@ -254,6 +260,11 @@ class Player extends Body {
 			x: config.canvas_size.width / 2,
 			y: config.canvas_size.height - 100
 		};
+
+		this.size = {
+			width: 20,
+			height: 20
+		};
 	}
 
 	/**
@@ -262,25 +273,9 @@ class Player extends Body {
 	 * @param {CanvasRenderingContext2D} graphics The current graphics context.
 	 */
 	draw(graphics) {
-		graphics.strokeStyle = '#000000';
-		graphics.beginPath();
-		graphics.moveTo(
-			this.position.x,
-			this.position.y - this.half_size.height
-		);
-		graphics.lineTo(
-			this.position.x + this.half_size.width,
-			this.position.y + this.half_size.height
-		);
-		graphics.lineTo(
-			this.position.x - this.half_size.width,
-			this.position.y + this.half_size.height
-		);
-		graphics.lineTo(
-			this.position.x,
-			this.position.y - this.half_size.height
-		);
-		graphics.stroke();
+		let img = new Image();
+		img.src = 'sprites/player.png';
+		graphics.drawImage(img, this.position.x-this.half_size.width, this.position.y-this.half_size.height, this.size.width, this.size.height);
 
 		// draw velocity lines
 		super.draw(graphics);
@@ -357,6 +352,11 @@ class Enemy extends Body {
 			x: Math.random()*config.canvas_size.width,
 			y: -50
 		};
+
+		this.size = {
+			width: 20,
+			height: 20
+		};
 	}
 
 	/**
@@ -365,25 +365,9 @@ class Enemy extends Body {
 	 * @param {CanvasRenderingContext2D} graphics The current graphics context.
 	 */
 	draw(graphics) {
-		graphics.strokeStyle = '#FF0000';
-		graphics.beginPath();
-		graphics.moveTo(
-			this.position.x,
-			this.position.y + this.half_size.height
-		);
-		graphics.lineTo(
-			this.position.x + this.half_size.width,
-			this.position.y - this.half_size.height
-		);
-		graphics.lineTo(
-			this.position.x - this.half_size.width,
-			this.position.y - this.half_size.height
-		);
-		graphics.lineTo(
-			this.position.x,
-			this.position.y + this.half_size.height
-		);
-		graphics.stroke();
+		let img = new Image();
+		img.src = 'sprites/enemy.png';
+		graphics.drawImage(img, this.position.x-this.half_size.width, this.position.y-this.half_size.height, this.size.width, this.size.height);
 
 		// draw velocity lines
 		super.draw(graphics);
@@ -427,6 +411,10 @@ class BossEnemy extends Body {
 			x: Math.random()*config.canvas_size.width,
 			y: -50
 		};
+		this.size = {
+			width: 25,
+			height: 40
+		};
 		this.health = 1000;
 	}
 
@@ -436,6 +424,10 @@ class BossEnemy extends Body {
 	 * @param {CanvasRenderingContext2D} graphics The current graphics context.
 	 */
 	draw(graphics) {
+		let img = new Image();
+		img.src = 'sprites/bossenemy.png';
+		graphics.drawImage(img, this.position.x-this.half_size.width, this.position.y-this.half_size.height, this.size.width, this.size.height);
+
 		graphics.strokeStyle = '#9400D3';
 		graphics.beginPath();
 		graphics.moveTo(
@@ -455,7 +447,6 @@ class BossEnemy extends Body {
 			this.position.y + this.half_size.height
 		);
 		graphics.stroke();
-
 		// draw velocity lines
 		super.draw(graphics);
 	}
@@ -513,6 +504,7 @@ class Enemy_Spawner {
 			let i;
 			for(i=0; i<this.enemies; i++){
 				if(this.bossSpawn){
+					new BossEnemy(1);
 					new BossEnemy(2);
 					bossesSpawned++;
 					this.bossSpawn = false;
@@ -560,10 +552,10 @@ class Collision_Handler {
 		this.ent.forEach(e1 => {
 			this.ent.forEach(e2 => {
 				if(e1 != e2){
-					if(e1.position.x < e2.position.x + e2.size.width &&
-						e1.position.x + e1.size.width > e2.position.x &&
-						e1.position.y < e2.position.y + e2.size.height &&
-						e1.position.y + e1.size.height > e2.position.y){
+					if(e1.position.x - e1.half_size.width < e2.position.x + e2.half_size.width &&
+						e1.position.x + e1.half_size.width > e2.position.x - e2.half_size.width &&
+						e1.position.y - e1.half_size.height < e2.position.y + e2.half_size.height &&
+						e1.position.y + e1.half_size.height > e2.position.y - e2.half_size.height){
 							if(e1 instanceof Player){
 								if(e2 instanceof Enemy){
 									e1.health -= 25;
@@ -578,6 +570,20 @@ class Collision_Handler {
 									if(e1.health <= 0){
 										e1.remove();
 										enemiesKilled++;
+									}
+								}
+							}
+							if(e1 instanceof BossEnemy){
+								if(e2 instanceof Projectile){
+									e1.health -= 7;
+									//console.log("Boss hit once.");
+									if(e1.health <= 0){
+										e1.remove();
+										enemiesKilled++;
+										bossesKilled++;
+									}
+									else{
+										e2.remove()
 									}
 								}
 							}
@@ -701,6 +707,9 @@ function update(delta_time) {
 	}
 
 	// allow the player to restart when dead
+	//if (player.isDead() && player.controller.action_1) {
+	// 	start();
+	//}
 	// if (player.isDead() && player.controller.action_1) {
 	// 	start();
 	// }
