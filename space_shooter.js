@@ -7,6 +7,7 @@
 /**
  * This class binds key listeners to the window and updates the controller in attached player body.
  *
+ * @author Professor Tony
  * @typedef InputHandler
  */
 class InputHandler {
@@ -45,14 +46,14 @@ class InputHandler {
 		if (this.key_code_mappings.axis.hasOwnProperty(event.keyCode)) {
 			const mapping = this.key_code_mappings.axis[event.keyCode];
 			this.player.controller[mapping.state] += mapping.mod;
-			console.log(`input_handler[axis:${mapping.state} state:${this.player.controller[mapping.state]}]`);
+			//console.log(`input_handler[axis:${mapping.state} state:${this.player.controller[mapping.state]}]`);
 		}
 
 		// check if button mapping exists
 		if (this.key_code_mappings.button.hasOwnProperty(event.keyCode)) {
 			const mapping = this.key_code_mappings.button[event.keyCode];
 			this.player.controller[mapping.state] = true;
-			console.log(`input_handler[button:${mapping.state} state:${this.player.controller[mapping.state]}]`);
+			//console.log(`input_handler[button:${mapping.state} state:${this.player.controller[mapping.state]}]`);
 		}
 	}
 
@@ -69,14 +70,14 @@ class InputHandler {
 		if (this.key_code_mappings.axis.hasOwnProperty(event.keyCode)) {
 			const mapping = this.key_code_mappings.axis[event.keyCode];
 			this.player.controller[mapping.state] -= mapping.mod;
-			console.log(`input_handler[axis:${mapping.state} state:${this.player.controller[mapping.state]}]`);
+			//console.log(`input_handler[axis:${mapping.state} state:${this.player.controller[mapping.state]}]`);
 		}
 
 		// check if button mapping exists
 		if (this.key_code_mappings.button.hasOwnProperty(event.keyCode)) {
 			const mapping = this.key_code_mappings.button[event.keyCode];
 			this.player.controller[mapping.state] = false;
-			console.log(`input_handler[button:${mapping.state} state:${this.player.controller[mapping.state]}]`);
+			//console.log(`input_handler[button:${mapping.state} state:${this.player.controller[mapping.state]}]`);
 		}
 	}
 }
@@ -91,6 +92,7 @@ class InputHandler {
  * Represents a basic physics body in the world. It has all of the necessary information to be
  * rendered, checked for collision, updated, and removed.
  *
+ * @author Professor Tony
  * @typedef Body
  */
 class Body {
@@ -164,6 +166,7 @@ class Body {
 /**
  * Represents an projectile body to be fired from player position.
  *
+ * @author Cameron
  * @typedef Projectile
  */
 class Projectile extends Body {
@@ -182,6 +185,11 @@ class Projectile extends Body {
 			x: x,
 			y: y
 		};
+
+		this.size = {
+			width: 10,
+			height: 20
+		};
 	}
 
 	/**
@@ -190,8 +198,9 @@ class Projectile extends Body {
 	 * @param {CanvasRenderingContext2D} graphics The current graphics context.
 	 */
 	draw(graphics) {
-		graphics.fillStyle = "#00FF00"
-		graphics.fillRect(this.position.x-this.half_size.width, this.position.y-this.half_size.height, this.size.width, this.size.height);
+		let img = new Image();
+		img.src = 'sprites/projectile.png';
+		graphics.drawImage(img, this.position.x-this.half_size.width, this.position.y-this.half_size.height, this.size.width, this.size.height);
 
 		// draw velocity lines
 		super.draw(graphics);
@@ -220,8 +229,9 @@ class Projectile extends Body {
 }
 
 /**
- * Represents an player body. Extends a Body by handling input binding and controller management.
+ * Represents a player body. Extends a Body by handling input binding and controller management.
  *
+ * @author Professor Tony, Cory and Cameron
  * @typedef Player
  */
 class Player extends Body {
@@ -250,6 +260,11 @@ class Player extends Body {
 			x: config.canvas_size.width / 2,
 			y: config.canvas_size.height - 100
 		};
+
+		this.size = {
+			width: 20,
+			height: 20
+		};
 	}
 
 	/**
@@ -258,25 +273,9 @@ class Player extends Body {
 	 * @param {CanvasRenderingContext2D} graphics The current graphics context.
 	 */
 	draw(graphics) {
-		graphics.strokeStyle = '#000000';
-		graphics.beginPath();
-		graphics.moveTo(
-			this.position.x,
-			this.position.y - this.half_size.height
-		);
-		graphics.lineTo(
-			this.position.x + this.half_size.width,
-			this.position.y + this.half_size.height
-		);
-		graphics.lineTo(
-			this.position.x - this.half_size.width,
-			this.position.y + this.half_size.height
-		);
-		graphics.lineTo(
-			this.position.x,
-			this.position.y - this.half_size.height
-		);
-		graphics.stroke();
+		let img = new Image();
+		img.src = 'sprites/player.png';
+		graphics.drawImage(img, this.position.x-this.half_size.width, this.position.y-this.half_size.height, this.size.width, this.size.height);
 
 		// draw velocity lines
 		super.draw(graphics);
@@ -304,6 +303,13 @@ class Player extends Body {
 			//die after health is 0 collisions
 			if(this.isDead()){
 				this.remove();
+				if(firstGame){
+					firstGame = false;
+				}
+				if(score > HighScore){
+					HighScore = score;
+				}
+				start();
 			}
 
 			//Combat
@@ -326,6 +332,13 @@ class Player extends Body {
 	}
 }
 
+
+/**
+ * Represents an enemy body. Extends body by handling speed and position
+ *
+ * @author Cory and Cameron
+ * @typedef Enemy
+ */
 class Enemy extends Body {
 	/**
 	 * Creates a new enemy with the default attributes.
@@ -339,6 +352,11 @@ class Enemy extends Body {
 			x: Math.random()*config.canvas_size.width,
 			y: -50
 		};
+
+		this.size = {
+			width: 20,
+			height: 20
+		};
 	}
 
 	/**
@@ -347,25 +365,9 @@ class Enemy extends Body {
 	 * @param {CanvasRenderingContext2D} graphics The current graphics context.
 	 */
 	draw(graphics) {
-		graphics.strokeStyle = '#FF0000';
-		graphics.beginPath();
-		graphics.moveTo(
-			this.position.x,
-			this.position.y + this.half_size.height
-		);
-		graphics.lineTo(
-			this.position.x + this.half_size.width,
-			this.position.y - this.half_size.height
-		);
-		graphics.lineTo(
-			this.position.x - this.half_size.width,
-			this.position.y - this.half_size.height
-		);
-		graphics.lineTo(
-			this.position.x,
-			this.position.y + this.half_size.height
-		);
-		graphics.stroke();
+		let img = new Image();
+		img.src = 'sprites/enemy.png';
+		graphics.drawImage(img, this.position.x-this.half_size.width, this.position.y-this.half_size.height, this.size.width, this.size.height);
 
 		// draw velocity lines
 		super.draw(graphics);
@@ -389,49 +391,180 @@ class Enemy extends Body {
 	}
 }
 
+
+/**
+ * Represents a boss enemy body. Extends the enemy by adding health utilization
+ *
+ * @author Cory
+ * @typedef BossEnemy
+ */
+class BossEnemy extends Body {
+	/**
+	 * Creates a new boss enemy with the default attributes.
+	 */
+	constructor(speed) {
+		super();
+
+		this.speed = speed;
+		// enemies spawn above canvos at a random x
+		this.position = {
+			x: Math.random()*config.canvas_size.width,
+			y: -50
+		};
+
+		this.size = {
+			width: 25,
+			height: 40
+		};
+	}
+
+	/**
+	 * Draws the boss enemy as a purple triangle around the enemies position.
+	 *
+	 * @param {CanvasRenderingContext2D} graphics The current graphics context.
+	 */
+	draw(graphics) {
+		let img = new Image();
+		img.src = 'sprites/bossenemy.png';
+		graphics.drawImage(img, this.position.x-this.half_size.width, this.position.y-this.half_size.height, this.size.width, this.size.height);
+
+
+		// draw velocity lines
+		super.draw(graphics);
+	}
+
+	/**
+	 * Updates the boss enemy based on its speed.
+	 *
+	 * @param {Number} delta_time Time in seconds since last update call.
+	 */
+	update(delta_time) {
+		this.position.y += this.speed;
+		if(this.position.y >= config.canvas_size.height){
+			super.remove()
+		}
+		// update position
+		super.update(delta_time);
+		// clip to screen
+		this.position.x = Math.min(Math.max(0, this.position.x), config.canvas_size.width);
+		this.position.y = Math.min(Math.max(0, this.position.y), config.canvas_size.height);
+	}
+}
+
+
+/**
+ * An object that spawns new enemy waves
+ *
+ * @author Cody and Cameron
+ * @typedef Enemy_Spawner
+ */
 class Enemy_Spawner {
+
+	/**
+	 * constructor - creates a new enemy_spawner
+	 *
+	 * @param  {Number} enemies     Number of enemies spawned per wave
+	 * @param  {Number} timeBetween Time between waves
+	 */
 	constructor(enemies, timeBetween){
 		this.enemies = enemies;
 		this.time_between = timeBetween;
 		this.time_since_spawn = 0;
+		this.bossSpawn = false;
+		this.bossTimer = 0;
 	}
 
+	/**
+	 * update - updates the enemy_spawner, spawning more enemies or waiting for next wave timer
+	 *
+	 * @param  {Number} delta_time tine in seconds since last update call
+	 */
 	update(delta_time) {
 		this.time_since_spawn+=delta_time;
 		if(this.time_since_spawn >= this.time_between){
 			this.time_since_spawn = 0;
 			let i;
 			for(i=0; i<this.enemies; i++){
-				new Enemy(2);
-				enemiesSpawned++;
+				if(this.bossSpawn){
+					new BossEnemy(1);
+					bossesSpawned++;
+					this.bossSpawn = false;
+					//console.log(this.bossSpawn);
+				}
+				else{
+					new Enemy(2);
+					this.bossTimer++;
+					enemiesSpawned++;
+					//console.log(this.bossTimer);
+					if(this.bossTimer == 10)
+					{
+						this.bossSpawn = true;
+						this.bossTimer = 0;
+						//console.log(this.bossSpawn);
+					}
+				}
 			}
 		}
 	}
 }
 
+
+/**
+ * Handles collisions between 2 bodies
+ *
+ * @author Cody and Cameron
+ * @typedef Collision_Handler
+ */
 class Collision_Handler {
+
+	/**
+	 * constructor - creates a new collision_handler
+	 *
+	 */
 	constructor(){
 		this.ent = entities;
 	}
 
+	/**
+	 * update - performs a check to see if 2 bodys have collided, updating the bodies if necessary
+	 *
+	 */
 	update(){
 		this.ent.forEach(e1 => {
 			this.ent.forEach(e2 => {
 				if(e1 != e2){
-					if(e1.position.x < e2.position.x + e2.size.width &&
-						e1.position.x + e1.size.width > e2.position.x &&
-						e1.position.y < e2.position.y + e2.size.height &&
-						e1.position.y + e1.size.height > e2.position.y){
+					if(e1.position.x - e1.half_size.width < e2.position.x + e2.half_size.width &&
+						e1.position.x + e1.half_size.width > e2.position.x - e2.half_size.width &&
+						e1.position.y - e1.half_size.height < e2.position.y + e2.half_size.height &&
+						e1.position.y + e1.half_size.height > e2.position.y - e2.half_size.height){
 							if(e1 instanceof Player){
 								if(e2 instanceof Enemy){
 									e1.health -= 25;
 								}
+								if(e2 instanceof BossEnemy){
+									e1.health -= 100;
+								}
 							}
 							if(e1 instanceof Enemy){
 								if(e2 instanceof Player || e2 instanceof Projectile){
-									e1.remove();
-									if(e2 instanceof Projectile){
+									e1.health -= 100;
+									if(e1.health <= 0){
+										e1.remove();
 										enemiesKilled++;
+									}
+								}
+							}
+							if(e1 instanceof BossEnemy){
+								if(e2 instanceof Projectile){
+									e1.health -= 7;
+									//console.log("Boss hit once.");
+									if(e1.health <= 0){
+										e1.remove();
+										enemiesKilled++;
+										bossesKilled++;
+									}
+									else{
+										e2.remove()
 									}
 								}
 							}
@@ -544,9 +677,9 @@ function update(delta_time) {
 	}
 
 	// allow the player to restart when dead
-	if (player.isDead() && player.controller.action_1) {
-		start();
-	}
+	//if (player.isDead() && player.controller.action_1) {
+	// 	start();
+	//}
 }
 
 /**
@@ -569,15 +702,15 @@ function draw(graphics) {
 	});
 
 	// game over screen
-	if (player.isDead()) {
-		graphics.font = "30px Arial";
-		graphics.textAlign = "center";
-		graphics.fillText('Game Over', config.canvas_size.width / 2, config.canvas_size.height / 2);
+	// if (player.isDead()) {
+	// 	graphics.font = "30px Arial";
+	// 	graphics.textAlign = "center";
+	// 	graphics.fillText('Game Over', config.canvas_size.width / 2, config.canvas_size.height / 2);
 
-		graphics.font = "12px Arial";
-		graphics.textAlign = "center";
-		graphics.fillText('press space to restart', config.canvas_size.width / 2, 18 + config.canvas_size.height / 2);
-	}
+	// 	graphics.font = "12px Arial";
+	// 	graphics.textAlign = "center";
+	// 	graphics.fillText('press space to restart', config.canvas_size.width / 2, 18 + config.canvas_size.height / 2);
+	// }
 }
 
 /**
@@ -610,29 +743,43 @@ function loop(curr_time) {
 		loop_count++;
 
 		score = Math.floor(30*enemiesKilled+timeAlive);
-		game_state.innerHTML = (
-			`loop count ${loop_count} <br>` +
-			`enemies killed ${enemiesKilled} <br>` +
-			`time alive ${timeAlive.toFixed(2)} <br>` +
-			`enemies spawned ${enemiesSpawned} <br>` +
-			`score ${score}`
-		);
+
+		if(firstGame){
+			HighScore = 0;
+		}
+		loopCount.innerHTML = `Loop Count ${loop_count}`;
+		scoreSpan.innerHTML = `Score ${score}`;
+		highScoreSpan.innerHTML = `The score to beat is ${HighScore}`;
+		seconds_alive.innerHTML = `You've survived for ${timeAlive.toFixed(2)} seconds`;
+		totalEnemiesSpawned.innerHTML = `There have been ${enemiesSpawned} scum walking this earth`;
+		totalEnemiesKilled.innerHTML = `You've ended ${enemiesKilled} of their lives`;
+		totalBossesSpawned.innerHTML = `There have been ${bossesSpawned} Big Bois walking this earth`;
+		totalBossesKilled.innerHTML = `You've splattered ${bossesKilled} of them`;
+
+
 	}
 
 	window.requestAnimationFrame(loop);
 }
 
+
+/**
+ * start - Starts the game, enters the loop after
+ *
+ */
 function start() {
 	entities = [];
 	queued_entities_for_removal = [];
 	enemiesKilled = 0;
 	timeAlive = 0;
+	bossesSpawned = 0;
+	bossesKilled = 0;
 	enemiesSpawned = 0;
 	player = new Player();
 	enemy_spawner = new Enemy_Spawner(1, .55);
 	collision_handler = new Collision_Handler();
 }
-
+firstGame = true;
 // start the game
 start();
 

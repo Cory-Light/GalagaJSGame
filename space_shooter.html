@@ -2,17 +2,40 @@
 <html lang="en">
 	<head>
 		<title>CS316 - PA2</title>
+		<link rel="stylesheet" href="gameCSS.css">
+		<link href="https://fonts.googleapis.com/css?family=Space+Mono&display=swap" rel="stylesheet">
 	</head>
 	<body>
 		<div id="game_wrapper">
-			<canvas id="game_canvas" style="border: 1px solid black;margin: 0 auto;display: block;"></canvas>
-			<span id="game_state"></span>
-			<div id="statsSection">
+			<div id="statsSection" class="statsScreen">
+				<span id="loopCount"></span>
+				<br>
+				<span id="scoreSpan"></span>
+				<br>	
+				<span id="highScoreSpan"></span>
+				<br>
+			</div>
+			<canvas id="game_canvas"></canvas>
+			<div id="statsSection" class="statsScreen">
 				<span id="seconds_alive"></span>
+				<br>
 				<span id="totalEnemiesSpawned"></span>
+				<br>
 				<span id="totalEnemiesKilled"></span>
+				<br>
+				<span id="totalBossesSpawned"></span>
+				<br>
+				<span id="totalBossesKilled"></span>
+				<br>
+			</div>
+		</div>
+		<div id="parentWrapper">
+			<div id="childWrapper">
+				WELCOME TO SPACE SHOOTER 35, TWICE THE SHOOTING!
 			</div>
 		</div>
 	</body>
 	<script src="space_shooter.js"></script>
 </html>
+
+
