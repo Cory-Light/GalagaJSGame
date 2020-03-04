@@ -336,7 +336,7 @@ class Player extends Body {
 /**
  * Represents an enemy body. Extends body by handling speed and position
  *
- * @author Cory and Cameron
+ * @author Cory and Cameron 
  * @typedef Enemy
  */
 class Enemy extends Body {
@@ -411,11 +411,11 @@ class BossEnemy extends Body {
 			x: Math.random()*config.canvas_size.width,
 			y: -50
 		};
-
 		this.size = {
 			width: 25,
 			height: 40
 		};
+		this.health = 1000;
 	}
 
 	/**
@@ -428,7 +428,25 @@ class BossEnemy extends Body {
 		img.src = 'sprites/bossenemy.png';
 		graphics.drawImage(img, this.position.x-this.half_size.width, this.position.y-this.half_size.height, this.size.width, this.size.height);
 
-
+		graphics.strokeStyle = '#9400D3';
+		graphics.beginPath();
+		graphics.moveTo(
+			this.position.x,
+			this.position.y + this.half_size.height
+		);
+		graphics.lineTo(
+			this.position.x + this.half_size.width,
+			this.position.y - this.half_size.height
+		);
+		graphics.lineTo(
+			this.position.x - this.half_size.width,
+			this.position.y - this.half_size.height
+		);
+		graphics.lineTo(
+			this.position.x,
+			this.position.y + this.half_size.height
+		);
+		graphics.stroke();
 		// draw velocity lines
 		super.draw(graphics);
 	}
@@ -487,6 +505,7 @@ class Enemy_Spawner {
 			for(i=0; i<this.enemies; i++){
 				if(this.bossSpawn){
 					new BossEnemy(1);
+					new BossEnemy(2);
 					bossesSpawned++;
 					this.bossSpawn = false;
 					//console.log(this.bossSpawn);
@@ -565,6 +584,17 @@ class Collision_Handler {
 									}
 									else{
 										e2.remove()
+									}
+								}
+							}
+							if(e1 instanceof BossEnemy){
+								if(e2 instanceof Projectile){
+									e1.health -= 100;
+									//console.log("Boss hit once.");
+									if(e1.health <= 0){
+										e1.remove();
+										enemiesKilled++;
+										bossesKilled++;
 									}
 								}
 							}
@@ -680,6 +710,9 @@ function update(delta_time) {
 	//if (player.isDead() && player.controller.action_1) {
 	// 	start();
 	//}
+	// if (player.isDead() && player.controller.action_1) {
+	// 	start();
+	// }
 }
 
 /**
