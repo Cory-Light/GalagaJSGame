@@ -507,6 +507,7 @@ class Enemy_Spawner {
 					new BossEnemy(1);
 					new BossEnemy(2);
 					bossesSpawned++;
+					bossesSpawned++;
 					this.bossSpawn = false;
 					//console.log(this.bossSpawn);
 				}
